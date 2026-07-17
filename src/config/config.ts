@@ -28,13 +28,14 @@ interface Config {
 	SEQUELIZEOPTIONS: SequelizeOptions;
 	APPLICATION_SERVER_PORT: number;
 	APP_FORCE_SHUTDOWN_SECOND: number;
+    REDIS_HOST: string;
 }
 
 const config: Config = {
 	SEQUELIZE: {
 		USERNAME: process.env.MYSQL_USER || "root",
 		PASSWORD: process.env.MYSQL_PASSWORD || "root",
-		MYSQL_DATABASE: process.env.MYSQL_DATABASE || "appifylab"
+		MYSQL_DATABASE: process.env.MYSQL_DATABASE || "appifylab_technical_assessment"
 	},
 	SEQUELIZEOPTIONS: {
 		host: process.env.MYSQL_HOST || "0.0.0.0",
@@ -53,7 +54,8 @@ const config: Config = {
 		log: console.log
 	},
 	APPLICATION_SERVER_PORT: Number(process.env.APPLICATION_SERVER_PORT) || 3000,
-	APP_FORCE_SHUTDOWN_SECOND: Number(process.env.APP_FORCE_SHUTDOWN_SECOND) || 30
+	APP_FORCE_SHUTDOWN_SECOND: Number(process.env.APP_FORCE_SHUTDOWN_SECOND) || 30,
+	REDIS_HOST: process.env.REDIS_HOST || "0.0.0.0"
 };
 
 export default config;
