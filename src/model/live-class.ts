@@ -83,7 +83,14 @@ LiveClass.init(
         tableName: "live_classes",
         modelName: "liveClass",
         timestamps: true,
-        indexes: [{ fields: ["school_id", "start_time"] }],
+        indexes: [
+            { name: "idx_live_classes_school_start_time", fields: ["school_id", "start_time"] },
+            {
+                unique: true,
+                name: "uniq_live_classes_school_title_start_time",
+                fields: ["school_id", "title", "start_time"],
+            },
+        ],
     }
 );
 
