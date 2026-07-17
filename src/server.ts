@@ -1,38 +1,49 @@
-import app from "./app";
 import http from "http";
+import { buildApp } from "./app";
 import config from "./config/config";
+import { closeRedisClient } from "./infra/redis";
 import newSequelize from "./infra/sequelize";
 
 const logger = console;
 
-const gracefulShutdown = (server: http.Server, forcedTimeout: number) => {
+const gracefulShutdown = (server: http.Server, forcedTimeoutMs: number) => {
     return function () {
-        logger.info("Received SIGINT or SIGTERM. Shutting down gracefully...");
+        logger.info("Received shutdown signal. Shutting down gracefully...");
         server.close(async () => {
-            logger.info("Closed out remaining connections.");
+            logger.info("Closed out remaining HTTP connections.");
 
             try {
+                await closeRedisClient();
                 await newSequelize().close();
-                console.log("Database connection closed.");
-                process.exit();
+                logger.info("Database and Redis connections closed.");
+                process.exit(0);
             } catch (err) {
-                process.exit();
+                logger.error("Shutdown failed", err);
+                process.exit(1);
             }
         });
-        
+
         setTimeout(() => {
             logger.error("Could not close connections in time, forcefully shutting down");
-            process.exit();
-        }, forcedTimeout);
+            process.exit(1);
+        }, forcedTimeoutMs);
     };
 };
 
-const server = http.createServer(app);
+const startServer = async (): Promise<void> => {
+    const app = await buildApp();
+    const server = http.createServer(app);
+    const forcedTimeoutMs = config.APP_FORCE_SHUTDOWN_SECOND * 1000;
 
-process.on("SIGTERM", gracefulShutdown(server, config.APP_FORCE_SHUTDOWN_SECOND));
-process.on("SIGINT", gracefulShutdown(server, config.APP_FORCE_SHUTDOWN_SECOND));
+    process.on("SIGTERM", gracefulShutdown(server, forcedTimeoutMs));
+    process.on("SIGINT", gracefulShutdown(server, forcedTimeoutMs));
 
+    server.listen(config.APPLICATION_SERVER_PORT, () => {
+        logger.log("API is running on port: " + config.APPLICATION_SERVER_PORT);
+    });
+};
 
-server.listen(config.APPLICATION_SERVER_PORT, () => {
-    logger.log("API is running on port: " + config.APPLICATION_SERVER_PORT);
+startServer().catch((err) => {
+    logger.error("Failed to start server", err);
+    process.exit(1);
 });
