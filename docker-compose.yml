@@ -13,11 +13,12 @@ services:
             - .:/server
         environment:
             - MYSQL_HOST=db
-            - MYSQL_DATABASE=appifylab
+            - MYSQL_DATABASE=appifylab_technical_assessment
             - MYSQL_USER=root
             - MYSQL_PASSWORD=root
             - APPLICATION_SERVER_PORT=3000
             - APP_FORCE_SHUTDOWN_SECOND=30
+            - REDIS_HOST=redis
 
     # Database
     db:
@@ -27,7 +28,7 @@ services:
         restart: always
         environment:
             MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: appifylab
+            MYSQL_DATABASE: appifylab_technical_assessment
 
     # phpmyadmin
     phpmyadmin:
@@ -40,3 +41,9 @@ services:
         environment:
             PMA_HOST: db
             MYSQL_ROOT_PASSWORD: root
+    # Redis
+    redis:
+        image: redis:7.0
+        container_name: redis
+        ports:
+            - "6379:6379"
