@@ -2,19 +2,22 @@
 
 Live class enrollment backend for a multi-tenant learning management system.
 
+ERD: [docs/erd.md](./docs/erd.md)
+
 Implemented flow:
 
 - `POST /api/v1/schools`
 - `POST /api/v1/students`
-- `POST /api/v1/live-classes`
-- `POST /api/v1/live-classes/:liveClassId/enrollments`
-- `DELETE /api/v1/live-classes/:liveClassId/enrollments/:studentId?schoolId=...`
-- `GET /api/v1/students/:studentId/enrollments?schoolId=...`
-- `GET /api/v1/live-classes/:liveClassId/roster?schoolId=...`
+- `POST /api/v1/classes`
+- `POST /api/v1/classes/:liveClassId/enroll`
+- `DELETE /api/v1/classes/:liveClassId/enroll`
+- `GET /api/v1/students/me/enrollments`
+- `GET /api/v1/classes/:liveClassId/roster`
 
 Feature behavior:
 
 - multi-tenant isolation by `schoolId`
+- fake auth via `x-tenant-id` and `x-user-id` headers for tenant/user scoping
 - concurrency-safe enrollment with MySQL transactions
 - no oversell beyond `maxSeats`
 - retry-safe enrollment by returning the existing enrollment instead of double-creating

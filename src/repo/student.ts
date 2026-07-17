@@ -19,6 +19,11 @@ export interface StudentEnrollmentSummary {
 export interface StudentRepoInterface {
     create(student: StudentInterface): Promise<StudentInterface>;
     findById(id: number, transaction?: Transaction): Promise<StudentInterface | null>;
+    findBySchoolAndEmail(
+        schoolId: number,
+        email: string,
+        transaction?: Transaction
+    ): Promise<StudentInterface | null>;
     listEnrollments(schoolId: number, studentId: number): Promise<StudentEnrollmentSummary[]>;
 }
 
@@ -33,6 +38,18 @@ export class StudentRepo implements StudentRepoInterface {
         transaction?: Transaction
     ): Promise<StudentInterface | null> {
         const student = await Student.findByPk(id, { transaction });
+        return student ? (student.get({ plain: true }) as StudentInterface) : null;
+    }
+
+    async findBySchoolAndEmail(
+        schoolId: number,
+        email: string,
+        transaction?: Transaction
+    ): Promise<StudentInterface | null> {
+        const student = await Student.findOne({
+            where: { schoolId, email },
+            transaction,
+        });
         return student ? (student.get({ plain: true }) as StudentInterface) : null;
     }
 

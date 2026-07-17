@@ -32,6 +32,17 @@ export class StudentService implements StudentServiceInterface {
             );
         }
 
+        const existing = await this.studentRepo.findBySchoolAndEmail(
+            student.schoolId,
+            student.email
+        );
+        if (existing) {
+            throw new BadRequestException(
+                ERROR_CODES.E_INVALID_DATA,
+                "Student email already exists in this school"
+            );
+        }
+
         return this.studentRepo.create(student);
     }
 

@@ -7,6 +7,7 @@ import { LiveClassInterface } from "../model/live-class";
 import { EnrollmentRepoInterface } from "../repo/enrollment";
 import { LiveClassRepoInterface, RosterEntry } from "../repo/live-class";
 import { SchoolRepoInterface } from "../repo/school";
+import { withTransaction } from "../repo/transaction";
 import {
     StudentEnrollmentSummary,
     StudentRepoInterface,
@@ -86,7 +87,7 @@ export class LiveClassService implements LiveClassServiceInterface {
         liveClassId: number,
         studentId: number
     ): Promise<EnrollmentResult> {
-        const result = await newSequelize().transaction(
+        const result = await withTransaction(
             async (transaction: Transaction) => {
                 const liveClass = await this.mustLockLiveClass(
                     schoolId,
@@ -160,7 +161,7 @@ export class LiveClassService implements LiveClassServiceInterface {
         liveClassId: number,
         studentId: number
     ): Promise<CancellationResult> {
-        const result = await newSequelize().transaction(
+        const result = await withTransaction(
             async (transaction: Transaction) => {
                 const liveClass = await this.mustLockLiveClass(
                     schoolId,

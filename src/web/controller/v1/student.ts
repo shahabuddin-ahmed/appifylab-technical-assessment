@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Joi from "joi";
 import { StudentServiceInterface } from "../../../service/student";
+import { AuthenticatedRequest } from "../../../types/request";
 import { Controller } from "../controller";
 
 export class StudentController extends Controller {
@@ -10,32 +11,27 @@ export class StudentController extends Controller {
         this.listEnrollments = this.listEnrollments.bind(this);
     }
 
-    async create(req: Request, res: Response): Promise<Response> {
+    async create(req: AuthenticatedRequest, res: Response): Promise<Response> {
         const schema = Joi.object({
-            schoolId: Joi.number().integer().positive().required(),
             name: Joi.string().trim().min(2).max(150).required(),
             email: Joi.string().email().required(),
         });
 
         const { value } = await this.validateRequest(schema, req.body);
-        const student = await this.studentService.create(value);
+        const student = await this.studentService.create({
+            ...value,
+            schoolId: req.tenantId as number,
+        });
         return this.sendResponse({ response: student }, 201, res);
     }
 
-    async listEnrollments(req: Request, res: Response): Promise<Response> {
-        const schema = Joi.object({
-            schoolId: Joi.number().integer().positive().required(),
-            studentId: Joi.number().integer().positive().required(),
-        });
-
-        const { value } = await this.validateRequest(schema, {
-            schoolId: req.query.schoolId,
-            studentId: req.params.studentId,
-        });
-
+    async listEnrollments(
+        req: AuthenticatedRequest,
+        res: Response
+    ): Promise<Response> {
         const enrollments = await this.studentService.listEnrollments(
-            value.schoolId,
-            value.studentId
+            req.tenantId as number,
+            req.userId as number
         );
 
         return this.sendResponse({ response: enrollments }, 200, res);

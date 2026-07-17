@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Joi from "joi";
 import { LiveClassServiceInterface } from "../../../service/live-class";
+import { AuthenticatedRequest } from "../../../types/request";
 import { Controller } from "../controller";
 
 export class LiveClassController extends Controller {
@@ -12,9 +13,8 @@ export class LiveClassController extends Controller {
         this.getRoster = this.getRoster.bind(this);
     }
 
-    async create(req: Request, res: Response): Promise<Response> {
+    async create(req: AuthenticatedRequest, res: Response): Promise<Response> {
         const schema = Joi.object({
-            schoolId: Joi.number().integer().positive().required(),
             title: Joi.string().trim().min(3).max(191).required(),
             startTime: Joi.date().iso().required(),
             durationMinutes: Joi.number().integer().min(1).required(),
@@ -23,27 +23,24 @@ export class LiveClassController extends Controller {
         });
 
         const { value } = await this.validateRequest(schema, req.body);
-        const liveClass = await this.liveClassService.create(value);
+        const liveClass = await this.liveClassService.create({
+            ...value,
+            schoolId: req.tenantId as number,
+        });
         return this.sendResponse({ response: liveClass }, 201, res);
     }
 
-    async enroll(req: Request, res: Response): Promise<Response> {
+    async enroll(req: AuthenticatedRequest, res: Response): Promise<Response> {
         const schema = Joi.object({
-            schoolId: Joi.number().integer().positive().required(),
             liveClassId: Joi.number().integer().positive().required(),
-            studentId: Joi.number().integer().positive().required(),
         });
 
-        const { value } = await this.validateRequest(schema, {
-            schoolId: req.body.schoolId,
-            liveClassId: req.params.liveClassId,
-            studentId: req.body.studentId,
-        });
+        const { value } = await this.validateRequest(schema, req.params);
 
         const result = await this.liveClassService.enroll(
-            value.schoolId,
+            req.tenantId as number,
             value.liveClassId,
-            value.studentId
+            req.userId as number
         );
 
         return this.sendResponse(
@@ -58,40 +55,33 @@ export class LiveClassController extends Controller {
         );
     }
 
-    async cancelEnrollment(req: Request, res: Response): Promise<Response> {
+    async cancelEnrollment(
+        req: AuthenticatedRequest,
+        res: Response
+    ): Promise<Response> {
         const schema = Joi.object({
-            schoolId: Joi.number().integer().positive().required(),
             liveClassId: Joi.number().integer().positive().required(),
-            studentId: Joi.number().integer().positive().required(),
         });
 
-        const { value } = await this.validateRequest(schema, {
-            schoolId: req.query.schoolId,
-            liveClassId: req.params.liveClassId,
-            studentId: req.params.studentId,
-        });
+        const { value } = await this.validateRequest(schema, req.params);
 
         const result = await this.liveClassService.cancel(
-            value.schoolId,
+            req.tenantId as number,
             value.liveClassId,
-            value.studentId
+            req.userId as number
         );
         return this.sendResponse({ response: result }, 200, res);
     }
 
-    async getRoster(req: Request, res: Response): Promise<Response> {
+    async getRoster(req: AuthenticatedRequest, res: Response): Promise<Response> {
         const schema = Joi.object({
-            schoolId: Joi.number().integer().positive().required(),
             liveClassId: Joi.number().integer().positive().required(),
         });
 
-        const { value } = await this.validateRequest(schema, {
-            schoolId: req.query.schoolId,
-            liveClassId: req.params.liveClassId,
-        });
+        const { value } = await this.validateRequest(schema, req.params);
 
         const roster = await this.liveClassService.getRoster(
-            value.schoolId,
+            req.tenantId as number,
             value.liveClassId
         );
         return this.sendResponse({ response: roster }, 200, res);
