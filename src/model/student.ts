@@ -38,7 +38,6 @@ Student.init(
         email: {
             type: DataTypes.STRING(191),
             allowNull: false,
-            unique: "uniq_school_email",
         },
     },
     {
@@ -49,7 +48,7 @@ Student.init(
         indexes: [
             {
                 unique: true,
-                name: "uniq_school_email",
+                name: "uniq_students_school_email",
                 fields: ["school_id", "email"],
             },
         ],

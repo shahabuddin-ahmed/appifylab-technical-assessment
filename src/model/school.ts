@@ -25,6 +25,7 @@ School.init(
         name: {
             type: DataTypes.STRING(150),
             allowNull: false,
+            // unique: true,
         },
     },
     {
@@ -32,6 +33,13 @@ School.init(
         tableName: "schools",
         modelName: "school",
         timestamps: true,
+        indexes: [
+            {
+                name: "uniq_schools_name",
+                unique: true,
+                fields: ["name"],
+            },
+        ],
     }
 );
 

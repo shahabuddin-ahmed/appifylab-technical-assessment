@@ -68,11 +68,11 @@ Enrollment.init(
         indexes: [
             {
                 unique: true,
-                name: "uniq_active_class_student",
+                name: "uniq_enrollments_school_live_class_student",
                 fields: ["school_id", "live_class_id", "student_id"],
             },
             {
-                name: "idx_waitlist_lookup",
+                name: "idx_enrollments_waitlist_lookup",
                 fields: ["school_id", "live_class_id", "status", "waitlist_position"],
             },
         ],
