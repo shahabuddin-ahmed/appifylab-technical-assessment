@@ -3,6 +3,8 @@
 Live class enrollment backend for a multi-tenant learning management system.
 
 ERD: [docs/erd.md](./docs/erd.md)
+Design: [docs/DESIGN.md](./docs/DESIGN.md)
+SQL: [docs/schema.sql](./docs/schema.sql)
 
 Implemented flow:
 
