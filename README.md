@@ -2,11 +2,110 @@
 
 Live class enrollment backend for a multi-tenant learning management system.
 
-ERD: [docs/erd.md](./docs/erd.md)
-Design: [docs/DESIGN.md](./docs/DESIGN.md)
-SQL: [docs/schema.sql](./docs/schema.sql)
+## Documentation
 
-Implemented flow:
+- ERD: [docs/erd.md](./docs/erd.md)
+- Design: [docs/DESIGN.md](./docs/DESIGN.md)
+- SQL: [docs/schema.sql](./docs/schema.sql)
+
+## Requirements
+
+- Docker and Docker Compose
+- Node.js 22+
+- Yarn
+
+## Running the API
+
+### Docker Compose (recommended)
+
+Clone the repository:
+
+```bash
+git clone <your-repository-url>
+cd appifylab-technical-assessment
+```
+
+Install dependencies:
+
+```bash
+yarn install
+```
+
+Run the application:
+
+```bash
+docker-compose up --build
+```
+
+This starts:
+
+- API container
+- MySQL 8
+- Redis 7
+- phpMyAdmin
+
+Docker Compose uses [Dockerfile.dev](./Dockerfile.dev) for local development.
+
+Endpoints and tools:
+
+- API base URL: [http://localhost:3000/api/v1](http://localhost:3000/api/v1)
+- Health check: [http://localhost:3000/api/v1/health](http://localhost:3000/api/v1/health)
+- phpMyAdmin: [http://localhost:8080](http://localhost:8080)
+
+Database settings from `docker-compose.yml`:
+
+- MySQL host: `db`
+- MySQL database: `appifylab_technical_assessment`
+- MySQL user: `root`
+- MySQL password: `root`
+- Redis host: `redis`
+
+To build the production image instead:
+
+```bash
+docker build -f Dockerfile -t appifylab-technical-assessment:prod .
+```
+
+### Local (host Node, optional)
+
+Install dependencies:
+
+```bash
+yarn install
+```
+
+Run the app:
+
+```bash
+yarn dev
+```
+
+Default runtime settings live in [src/config/config.ts](./src/config/config.ts). Override them with environment variables when needed:
+
+- `MYSQL_HOST`
+- `MYSQL_DATABASE`
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
+- `APPLICATION_SERVER_PORT`
+- `APP_FORCE_SHUTDOWN_SECOND`
+- `REDIS_HOST`
+
+## Database Initialization
+
+On startup, Sequelize:
+
+1. authenticates against MySQL
+2. calls `sequelize.sync()`
+
+Implications:
+
+- tables are created automatically if they do not exist
+- this project does not use migrations
+- schema changes are tied to the current Sequelize model definitions
+
+For an assessment project this is acceptable. For production, explicit migrations would be safer.
+
+## Implemented API Flow
 
 - `POST /api/v1/schools`
 - `POST /api/v1/students`
@@ -16,10 +115,19 @@ Implemented flow:
 - `GET /api/v1/students/me/enrollments`
 - `GET /api/v1/classes/:liveClassId/roster`
 
-Feature behavior:
+## Auth Model Used for the Assessment
+
+Auth is intentionally faked via headers:
+
+- `x-tenant-id` -> school id
+- `x-user-id` -> student id
+
+These are resolved in middleware and then enforced in service logic as tenant/user scope.
+
+## Feature Behavior
 
 - multi-tenant isolation by `schoolId`
-- fake auth via `x-tenant-id` and `x-user-id` headers for tenant/user scoping
+- fake auth via `x-tenant-id` and `x-user-id`
 - concurrency-safe enrollment with MySQL transactions
 - no oversell beyond `maxSeats`
 - retry-safe enrollment by returning the existing enrollment instead of double-creating
