@@ -21,7 +21,7 @@ Live class enrollment backend for a multi-tenant learning management system.
 Clone the repository:
 
 ```bash
-git clone <your-repository-url>
+git clone git@github.com:shahabuddin-ahmed/appifylab-technical-assessment.git
 cd appifylab-technical-assessment
 ```
 
