@@ -25,7 +25,7 @@ School.init(
         name: {
             type: DataTypes.STRING(150),
             allowNull: false,
-            // unique: true,
+            unique: true,
         },
     },
     {

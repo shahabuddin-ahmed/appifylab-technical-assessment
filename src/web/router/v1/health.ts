@@ -1,16 +1,16 @@
 import { Router } from "express";
 
 export const newHealthRouter = async (): Promise<Router> => {
-    const healthRouter = Router();
+    const router = Router();
 
-    healthRouter.get("/", (_req, res) => {
+    router.get("/", (_req, res) => {
         return res.status(200).send({
             code: "SUCCESS",
-            message: "Welcome to AppifyLab Technical Assessment API",
+            message: "Live class enrollment API is healthy",
             response: null,
-            errors: []
+            errors: [],
         });
     });
 
-    return healthRouter;
+    return router;
 };

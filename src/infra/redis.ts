@@ -26,8 +26,21 @@ class RedisClient {
         RedisClient.instance = client;
         return client;
     }
+
+    public static async close(): Promise<void> {
+        if (!RedisClient.instance) {
+            return;
+        }
+
+        await RedisClient.instance.quit();
+        RedisClient.instance = null;
+    }
 }
 
 export const newRedisClient = async (): Promise<RedisClientType> => {
     return RedisClient.getInstance();
+};
+
+export const closeRedisClient = async (): Promise<void> => {
+    await RedisClient.close();
 };
