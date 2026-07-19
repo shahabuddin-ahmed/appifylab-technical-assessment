@@ -7,6 +7,7 @@ Live class enrollment backend for a multi-tenant learning management system.
 - ERD: [docs/erd.md](./docs/erd.md)
 - Design: [docs/DESIGN.md](./docs/DESIGN.md)
 - SQL: [docs/schema.sql](./docs/schema.sql)
+- Postman: [docs/POSTMAN.md](./docs/POSTMAN.md)
 
 ## Requirements
 
@@ -123,6 +124,32 @@ Auth is intentionally faked via headers:
 - `x-user-id` -> student id
 
 These are resolved in middleware and then enforced in service logic as tenant/user scope.
+
+## Postman
+
+Provided Postman assets:
+
+- Collection: `appifylab assessment.postman_collection.json`
+- Environment: `appifylab-assessment.postman_environment.json`
+
+Recommended environment values:
+
+- `HOST = http://localhost:3000/api/v1`
+- `x-tenant-id = 1`
+- `x-user-id = 1`
+
+Important:
+
+- the exported collection currently uses `live-classes` in the URLs
+- the current implementation in this repository uses `classes`
+
+So after importing the collection, update:
+
+- `{{HOST}}/live-classes` -> `{{HOST}}/classes`
+- `{{HOST}}/live-classes/1/enroll` -> `{{HOST}}/classes/1/enroll`
+- `{{HOST}}/live-classes/1/roster` -> `{{HOST}}/classes/1/roster`
+
+See [docs/POSTMAN.md](./docs/POSTMAN.md) for the full note.
 
 ## Feature Behavior
 
